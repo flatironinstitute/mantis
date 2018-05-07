@@ -6,7 +6,7 @@ import os
 import seaborn.apionly as sns
 from nomad import sdp_km_burer_monteiro
 from data import toy
-from tests.utils import plot_matrix, plot_data_clustered
+from tests.utils import plot_matrix, plot_data_clustered, plot_data_embedded
 
 dir_name = '../results/'
 if not os.path.exists(dir_name):
@@ -14,6 +14,12 @@ if not os.path.exists(dir_name):
 dir_name += 'circle_bm/'
 if not os.path.exists(dir_name):
     os.mkdir(dir_name)
+
+
+def plot_bumps_on_data(X, bump):
+    plot_data_embedded(X, palette='w')
+    alpha = np.maximum(bump, 0) / bump.max()
+    plot_data_embedded(X, palette='#FF0000', alpha=alpha)
 
 
 def test_one_circle(n_clusters=16):
@@ -27,7 +33,6 @@ def test_one_circle(n_clusters=16):
     Q = Y.dot(Y.T)
 
     idx = np.argsort(np.argmax(Y, axis=0))
-    print(idx.shape, idx)
     Y = Y[:, idx]
 
     sns.set_style('white')
@@ -49,6 +54,15 @@ def test_one_circle(n_clusters=16):
     ax.set_title('$\mathbf{{Y}}$', fontsize='xx-large')
 
     plt.savefig('{}{}.pdf'.format(dir_name, 'circle_bm'))
+
+    pdf_file_name = '{}_plot_{}_on_data_{}{}'
+
+    for i in range(len(X)):
+        plt.figure()
+        plot_bumps_on_data(X, Y[:, i])
+        plt.savefig(pdf_file_name.format(dir_name, 'Y', i, '.png'))
+        plt.close()
+
 
 
 if __name__ == '__main__':
