@@ -247,3 +247,93 @@ def sdp_km_conditional_gradient(D, n_clusters, max_iter=2e3,
         return Q, rmse_list, obj_value_list
     else:
         return Q
+
+
+def copositive_burer_monteiro(X, alpha, beta, rank=None, maxiter=5e3, tol=1e-5,
+                              lag_tol=1e-5):
+    if rank is None:
+        rank = 8 * beta * len(X)
+
+    X_norm = X - np.mean(X, axis=0)
+    if X_norm.shape[0] > X_norm.shape[1]:
+        cov = X_norm.T.dot(X_norm)
+    else:
+        XXt = X_norm.dot(X_norm.T)
+        cov = XXt
+    X_norm /= np.trace(cov.dot(cov)) ** 0.25
+
+    if X_norm.shape[0] <= X_norm.shape[1]:
+        XXt /= np.trace(cov.dot(cov)) ** 0.5
+
+    Y_shape = (len(X), rank)
+    ones = np.ones((len(X), 1))
+
+    def lagrangian(x, lambda1, sigma1):
+        Y = x.reshape(Y_shape)
+
+        if X_norm.shape[0] > X_norm.shape[1]:
+            YtX = Y.T.dot(X_norm)
+            obj = -np.trace(YtX.dot(YtX.T))
+        else:
+            obj = -np.trace(Y.T.dot(XXt).dot(Y))
+
+        Yt1 = Y.T.dot(ones)
+        obj += alpha * Yt1.T.dot(Yt1)
+
+        diagYtY_minus_beta = np.linalg.norm(Y, axis=1) - beta
+        obj -= lambda1.dot(diagYtY_minus_beta)
+        obj += .5 * sigma1 * np.sum(diagYtY_minus_beta ** 2)
+
+        return obj
+
+    def grad(x, lambda1, sigma1):
+        Y = x.reshape(Y_shape)
+
+        if X_norm.shape[0] > X_norm.shape[1]:
+            delta = -2 * X_norm.dot(X_norm.T.dot(Y))
+        else:
+            delta = -2 * XXt.dot(Y)
+
+        Yt1 = Y.T.dot(ones)
+        delta += 2 * alpha * ones.dot(Yt1.T)
+
+        delta -= 2 * np.diag(lambda1 - sigma1 * (np.diag(Y.dot(Y.T)) - beta)).dot(Y)
+
+        return delta.flatten()
+
+    if X_norm.shape[0] > X_norm.shape[1]:
+        Y = symnmf_gram_admm(X_norm, rank)
+    else:
+        Y = symnmf_admm(XXt, rank)
+
+    lambda1 = np.zeros((len(X),))
+    sigma1 = 1
+    step = 1
+
+    error = []
+    error_lag_mul = []
+    for n_iter in range(int(maxiter)):
+        fun = partial(lagrangian, lambda1=lambda1, sigma1=sigma1)
+        jac = partial(grad, lambda1=lambda1, sigma1=sigma1)
+        bounds = [(0, beta)] * np.prod(Y_shape)
+
+        Y_old = Y.copy()
+        res = minimize(fun, Y.flatten(), jac=jac, bounds=bounds,
+                       method='L-BFGS-B',)
+        Y = res.x.reshape(Y_shape)
+
+        lambda1_old = lambda1.copy()
+        lambda1 -= step * sigma1 * (np.linalg.norm(Y, axis=1) - beta)
+        lambda1 = np.minimum(lambda1, 0)
+
+        norm_const = 1e-16 + np.linalg.norm(np.linalg.norm(Y_old))
+        error.append(np.linalg.norm(Y - Y_old) / norm_const)
+        norm_const = 1e-16 + np.linalg.norm(lambda1_old)
+        error_lag_mul.append(np.linalg.norm(lambda1 - lambda1_old) / norm_const)
+
+        print(X_norm.dot(X_norm.T).max(), Y.min(), Y.max(), beta, np.linalg.norm(Y, axis=1).min(), np.linalg.norm(Y, axis=1).max(), error[-1], error_lag_mul[-1])
+
+        if error[-1] < tol and error_lag_mul[-1] < lag_tol:
+            break
+
+    return Y
