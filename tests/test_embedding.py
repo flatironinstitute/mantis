@@ -5,7 +5,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import os
 import seaborn.apionly as sns
-from nomad import sdp_kmeans_embedding
+from nomad import nomad_embedding
 from data import toy, real
 from tests.utils import plot_matrix, plot_data_embedded, plot_images_embedded
 
@@ -21,8 +21,8 @@ def test_toy_embedding(X, n_clusters, target_dim, filename, palette='hls',
                        elev_azim=None):
     print('--------\n', filename)
 
-    embedding, D, Q = sdp_kmeans_embedding(X, n_clusters, target_dim,
-                                           ret_sdp=True)
+    embedding, D, Q = nomad_embedding(X, n_clusters, target_dim,
+                                      ret_sdp=True)
 
     sns.set_style('whitegrid')
     plt.figure(figsize=(12, 6), tight_layout=True)
@@ -59,8 +59,8 @@ def test_real_embedding(X, n_clusters, target_dim, img_getter, filename,
                         method='cvx'):
     print('--------\n', filename)
 
-    embedding, D, Q = sdp_kmeans_embedding(X, n_clusters, target_dim,
-                                           method=method, ret_sdp=True)
+    embedding, D, Q = nomad_embedding(X, n_clusters, target_dim,
+                                      method=method, ret_sdp=True)
 
     sns.set_style('whitegrid')
     plt.figure(figsize=(12, 4), tight_layout=True)

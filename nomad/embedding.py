@@ -3,8 +3,8 @@ from numpy.linalg import eigh
 from nomad.sdp import nomad
 
 
-def sdp_kmeans_embedding(X, n_clusters, target_dim, ret_sdp=False,
-                         method='cvx'):
+def nomad_embedding(X, n_clusters, target_dim, ret_sdp=False,
+                    method='cvx'):
     D, Q = nomad(X, n_clusters, method=method)
     Y = spectral_embedding(Q, target_dim=target_dim, discard_first=True)
     if ret_sdp:
