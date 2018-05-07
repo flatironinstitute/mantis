@@ -6,7 +6,7 @@ import numpy as np
 import os
 from scipy.linalg import dft
 import seaborn.apionly as sns
-from sdp_kmeans import sdp_kmeans, dot_matrix
+from nomad import nomad, dot_matrix
 from data import toy
 from tests.utils import plot_matrix, plot_data_clustered
 
@@ -23,7 +23,7 @@ def test_circles():
     filename = 'circles_eigendecomposition'
 
     X, gt = toy.circles()
-    D, Q = sdp_kmeans(X, n_clusters)
+    D, Q = nomad(X, n_clusters)
 
     sns.set_style('white')
     sns.set_color_codes()
@@ -98,7 +98,7 @@ def test_one_circle():
     k_range = np.arange(1, len(X) + 1)
     solutions = []
     for k in k_range:
-        D, Q = sdp_kmeans(X, k)
+        D, Q = nomad(X, k)
         solutions.append(Q)
 
     sns.set_style('white')
@@ -203,7 +203,7 @@ def test_circle_sdp_lp():
     X = X[gt == 0, :]
 
     k = 16
-    D_sdp = sdp_kmeans(X, k)[1]
+    D_sdp = nomad(X, k)[1]
     D_lp, q = circle_lp(X, 16)
 
     eigvals, _ = np.linalg.eigh(D_sdp)

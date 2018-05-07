@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import seaborn.apionly as sns
-from sdp_kmeans import connected_components, log_scale, sdp_kmeans,\
+from nomad import connected_components, log_scale, nomad,\
     spectral_embedding
 from data import toy, real
 from tests.utils import plot_matrix, plot_data_clustered, plot_data_embedded,\
@@ -20,7 +20,7 @@ if not os.path.exists(dir_name):
 
 
 def clustering_embedding(X, n_clusters, target_dim):
-    D, Q = sdp_kmeans(X, n_clusters)
+    D, Q = nomad(X, n_clusters)
     clusters = connected_components(Q)
 
     embeddings = {}

@@ -7,7 +7,7 @@ import timeit
 import seaborn.apionly as sns
 import sys
 from data import real
-from sdp_kmeans import sdp_kmeans, sdp_km_burer_monteiro
+from nomad import nomad, sdp_km_burer_monteiro
 from tests.utils import Logger
 
 dir_name = '../results/'
@@ -39,7 +39,7 @@ def mnist_timing(k, n_samples_range, rank_factors=[4, 8], digit=1,
 
             if n_samples <= 1000:
                 t = timeit.default_timer()
-                D, Q_cvx = sdp_kmeans(X, k, method='cvx')
+                D, Q_cvx = nomad(X, k, method='cvx')
                 t = timeit.default_timer() - t
                 print('SDP-CVX', t)
                 time_sdp_cvx[n_samples] = t
@@ -61,7 +61,7 @@ def mnist_timing(k, n_samples_range, rank_factors=[4, 8], digit=1,
                     print('BM rank-{}'.format(rank), t)
 
             t = timeit.default_timer()
-            D, Q_cgm = sdp_kmeans(X, k, method='cgm')
+            D, Q_cgm = nomad(X, k, method='cgm')
             t = timeit.default_timer() - t
             time_sdp_cgm[n_samples] = t
             if n_samples <= 1000:

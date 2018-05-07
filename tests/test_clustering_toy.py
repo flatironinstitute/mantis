@@ -2,7 +2,7 @@ from __future__ import absolute_import, print_function
 import matplotlib.pyplot as plt
 import os
 import seaborn.apionly as sns
-from sdp_kmeans import log_scale, sdp_kmeans
+from nomad import log_scale, nomad
 from data import toy
 from tests.utils import plot_matrix, plot_data_clustered
 
@@ -15,7 +15,7 @@ if not os.path.exists(dir_name):
 
 
 def test_clustering(X, gt, n_clusters, filename):
-    D, Q = sdp_kmeans(X, n_clusters)
+    D, Q = nomad(X, n_clusters)
     Q_log = log_scale(Q)
 
     sns.set_style('white')

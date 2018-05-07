@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import seaborn.apionly as sns
-from sdp_kmeans import sdp_kmeans, sdp_km_conditional_gradient
+from nomad import nomad, sdp_km_conditional_gradient
 from data import real, toy
 from tests.utils import plot_matrix, plot_data_clustered
 
@@ -18,7 +18,7 @@ if not os.path.exists(dir_name):
 def test_cvx_vs_cgm(X, gt, n_clusters, filename):
     print('----', filename, '----')
 
-    D, Q_cvx = sdp_kmeans(X, n_clusters, method='cvx')
+    D, Q_cvx = nomad(X, n_clusters, method='cvx')
 
     out = sdp_km_conditional_gradient(D, n_clusters,
                                       max_iter=3e3, stop_tol=1e-6,

@@ -6,7 +6,7 @@ import os
 import scipy.io
 from scipy.stats import circmean
 import seaborn as sns
-from sdp_kmeans import sdp_kmeans, symnmf_admm, sdp_km_burer_monteiro
+from nomad import nomad, symnmf_admm, sdp_km_burer_monteiro
 from data import real, toy
 from tests.utils import plot_matrix, plot_data_clustered
 
@@ -20,7 +20,7 @@ if not os.path.exists(dir_name):
 
 
 def test_reconstruction(X, gt, n_clusters, filename, from_file=False):
-    Ds = sdp_kmeans(X, n_clusters, method='cvx')
+    Ds = nomad(X, n_clusters, method='cvx')
 
     if from_file:
         data = scipy.io.loadmat('{}{}.mat'.format(dir_name, filename))
@@ -75,7 +75,7 @@ def test_reconstruction(X, gt, n_clusters, filename, from_file=False):
 
 def test__circles_visualization(ranks):
     X, gt = toy.circles()
-    Ds = sdp_kmeans(X, 16)
+    Ds = nomad(X, 16)
 
     def get_y(rank):
         np.random.seed(0)
@@ -117,7 +117,7 @@ def check_completely_positivity(sym_mat, Y):
 
 
 def test_burer_monteiro(X, n_clusters, ranks, filename):
-    Qs = sdp_kmeans(X, n_clusters)
+    Qs = nomad(X, n_clusters)
 
     plt.figure(figsize=(16, 4), tight_layout=True)
     plt.subplot(1, len(ranks) + 1, 1)
