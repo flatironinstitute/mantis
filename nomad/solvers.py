@@ -93,7 +93,7 @@ def sdp_km_burer_monteiro(X, n_clusters, rank=None, maxiter=1e3, tol=1e-5):
 
         YtY = Y.T.dot(Y)
         delta -= 2 * (lambda1
-                      -sigma1 * (np.trace(Y.T.dot(Y)) - n_clusters)) * Y
+                      -sigma1 * (np.trace(YtY) - n_clusters)) * Y
 
         delta -= ones.dot(lambda2.T.dot(Y)) + lambda2.dot(ones.T.dot(Y))
 
