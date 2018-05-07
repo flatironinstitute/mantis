@@ -7,9 +7,6 @@ def symnmf_admm(A, k, H=None, maxiter=1e3, tol=1e-5, sigma=1):
     A is a symmetric matrix
     Solves || A - W.dot(W.T) ||_F^2 s.t. W >= 0
     """
-    A = A.copy()
-    A[A < 0] = 0
-
     n = A.shape[0]
     if n != A.shape[1]:
         raise ValueError('A must be a symmetric matrix!')
@@ -43,12 +40,10 @@ def symnmf_gram_admm(A, k, H=None, maxiter=1e3, tol=1e-5, sigma=1):
     """
     Solves || A.dot(A.T) - W.dot(W.T) ||_F^2 s.t. W >= 0
     """
-    A = A.copy()
-    A[A < 0] = 0
-
     if H is None:
         n = A.shape[0]
-        H = np.sqrt(A.mean() / k) * np.random.randn(n, k)
+        v = A.T.dot(np.ones((n,)))
+        H = np.sqrt(v.dot(v) / (k * n ** 2)) * np.random.randn(n, k)
         np.abs(H, H)
 
     Gamma = np.zeros((n, k))
