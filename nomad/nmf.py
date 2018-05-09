@@ -53,9 +53,7 @@ class DecomposedArray:
     def mean(self):
         n = len(self.X)
         v = self.X.T.dot(np.ones((n,)))
-        mean = (v.dot(v) / (n ** 2)) + self.c
-        print(mean)
-        return mean
+        return (v.dot(v) / (n ** 2)) + self.c
 
     @property
     def shape(self):
