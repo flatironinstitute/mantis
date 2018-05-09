@@ -1,3 +1,4 @@
+from matplotlib.collections import LineCollection
 import matplotlib.colors as mpl_colors
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 import matplotlib.pyplot as plt
@@ -24,7 +25,8 @@ def plot_confusion_matrix(conf_mat):
     plt.yticks([])
 
 
-def plot_matrix(mat, cmap='gray_r', ax=None):
+def plot_matrix(mat, cmap='gray_r', labels=None, which_labels='both',
+                labels_palette='Set1', ax=None):
     if ax is None:
         ax = plt.gca()
 
@@ -43,13 +45,47 @@ def plot_matrix(mat, cmap='gray_r', ax=None):
         mat = ((vmin + vmax) / 2) * np.ones_like(mat)
         ax.imshow(mat, interpolation='none', cmap=cmap)
 
-    ax.imshow(mat, interpolation='none', cmap=cmap, vmin=vmin, vmax=vmax)
+    plt_image = ax.imshow(mat, interpolation='none', cmap=cmap, vmin=vmin,
+                          vmax=vmax)
     ax.grid(False)
     ax.tick_params(axis='both',
                    which='both',
                    bottom='off', top='off',
                    left='off', right='off',
                    labelbottom='off', labelleft='off')
+
+    plt.colorbar(plt_image, orientation='horizontal', pad=.05, fraction=.05,
+                 ax=ax)
+
+    if labels is not None:
+        labels = np.sort(labels)
+        unique_labels = np.unique(labels)
+
+        segments = []
+        for lab in unique_labels:
+            subset = np.where(labels == lab)[0]
+            segments.append((subset[0] - 0.5, subset[-1] + 0.5))
+
+        offset = -0.05 * mat.shape[0]
+        h_segments = [((s[0], offset), (s[1], offset)) for s in segments]
+        v_segments = [((offset, s[0]), (offset, s[1])) for s in segments]
+
+        colors = sns.color_palette(labels_palette, n_colors=len(unique_labels))
+
+        if which_labels != 'both' and which_labels != 'horizontal'\
+                and which_labels != 'vertical':
+            raise ValueError('Wrong value for which_labels')
+
+        if which_labels == 'both' or which_labels == 'horizontal':
+            hlc = LineCollection(h_segments, colors=colors)
+            hlc.set_linewidth(5)
+            hlc.set_clip_on(False)
+            ax.add_collection(hlc)
+        if which_labels == 'both' or which_labels == 'vertical':
+            vlc = LineCollection(v_segments, colors=colors)
+            vlc.set_linewidth(5)
+            vlc.set_clip_on(False)
+            ax.add_collection(vlc)
 
 
 def line_plot_clustered(X, gt, ax=None):
