@@ -322,7 +322,7 @@ def copositive_burer_monteiro(X, alpha, beta, rank=None, maxiter=1e3, tol=1e-5,
         da = DecomposedArray(X_norm, c=-alpha)
         Y = symnmf_admm(da, rank)
     else:
-        Y = symnmf_admm(XXt, rank)
+        Y = symnmf_admm(XXt - alpha, rank)
 
     Y /= np.linalg.norm(Y, axis=0, keepdims=True)
 
