@@ -46,7 +46,8 @@ def sdp_km(D, n_clusters):
     return Q
 
 
-def sdp_km_burer_monteiro(X, n_clusters, rank=None, maxiter=1e3, tol=1e-5):
+def sdp_km_burer_monteiro(X, n_clusters, rank=None, maxiter=1e3, tol=1e-5,
+                          verbose=False):
     if rank is None:
         rank = 8 * n_clusters
 
@@ -109,6 +110,9 @@ def sdp_km_burer_monteiro(X, n_clusters, rank=None, maxiter=1e3, tol=1e-5):
     else:
         Y = symnmf_admm(XXt, rank)
 
+    Y /= np.linalg.norm(Y, axis=0, keepdims=True)
+    Y *= n_clusters / len(Y)
+
     lambda1 = 0.
     lambda2 = np.zeros((len(X), 1))
     sigma1 = 1
@@ -132,6 +136,17 @@ def sdp_km_burer_monteiro(X, n_clusters, rank=None, maxiter=1e3, tol=1e-5):
         lambda2 -= step * sigma2 * (Y.dot(Y.T.dot(ones)) - ones)
 
         error.append(np.linalg.norm(Y - Y_old) / np.linalg.norm(Y_old))
+
+        if verbose:
+            YYt1_minus_1 = Y.dot(Y.T.dot(ones)) - ones
+            fmt_str = '{: 4d} | Y bounds {:.5f} {:.5f} | ' \
+                      'constraints {:.10f} {:.10f} | E {:.10f}'
+            print(fmt_str.format(n_iter, Y.min(), Y.max(),
+                                 np.trace(Y.T.dot(Y)) - n_clusters,
+                                 np.abs(YYt1_minus_1).max(),
+                                 error[-1]
+                                 ))
+
 
         if error[-1] < tol:
             break
@@ -250,9 +265,8 @@ def sdp_km_conditional_gradient(D, n_clusters, max_iter=2e3,
         return Q
 
 
-def copositive_burer_monteiro(X, alpha, beta, rank=None, maxiter=1e3, tol=1e-10,
-                              constraint_tol=1e-10, sigma=0.1, step=0.1,
-                              verbose=True):
+def copositive_burer_monteiro(X, alpha, beta, rank=None, maxiter=1e3, tol=1e-5,
+                              constraint_tol=1e-5, verbose=True):
     if rank is None:
         rank = 8 * beta * len(X)
 
@@ -310,7 +324,11 @@ def copositive_burer_monteiro(X, alpha, beta, rank=None, maxiter=1e3, tol=1e-10,
     else:
         Y = symnmf_admm(XXt, rank)
 
+    Y /= np.linalg.norm(Y, axis=0, keepdims=True)
+
     lagrange_mul = np.zeros((len(X),))
+    sigma = 1
+    step = 1
 
     error = []
     error_constraint = []
