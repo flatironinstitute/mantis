@@ -4,7 +4,7 @@ from functools import partial
 import numpy as np
 import scipy.sparse as sp
 from scipy.optimize import minimize
-from nomad.nmf import symnmf_gram_admm, symnmf_admm
+from nomad.nmf import DecomposedArray, symnmf_admm
 from nomad.utils import dot_matrix
 
 
@@ -104,7 +104,8 @@ def sdp_km_burer_monteiro(X, n_clusters, rank=None, maxiter=1e3, tol=1e-5):
         return delta.flatten()
 
     if X_norm.shape[0] > X_norm.shape[1]:
-        Y = symnmf_gram_admm(X_norm, rank)
+        da = DecomposedArray(X_norm)
+        Y = symnmf_admm(da, rank)
     else:
         Y = symnmf_admm(XXt, rank)
 
@@ -249,8 +250,9 @@ def sdp_km_conditional_gradient(D, n_clusters, max_iter=2e3,
         return Q
 
 
-def copositive_burer_monteiro(X, alpha, beta, rank=None, maxiter=5e3, tol=1e-5,
-                              lag_tol=1e-5):
+def copositive_burer_monteiro(X, alpha, beta, rank=None, maxiter=1e3, tol=1e-10,
+                              constraint_tol=1e-10, sigma=0.1, step=0.1,
+                              verbose=True):
     if rank is None:
         rank = 8 * beta * len(X)
 
@@ -268,7 +270,7 @@ def copositive_burer_monteiro(X, alpha, beta, rank=None, maxiter=5e3, tol=1e-5,
     Y_shape = (len(X), rank)
     ones = np.ones((len(X), 1))
 
-    def lagrangian(x, lambda1, sigma1):
+    def lagrangian(x, lagrange_mul, sigma):
         Y = x.reshape(Y_shape)
 
         if X_norm.shape[0] > X_norm.shape[1]:
@@ -280,13 +282,13 @@ def copositive_burer_monteiro(X, alpha, beta, rank=None, maxiter=5e3, tol=1e-5,
         Yt1 = Y.T.dot(ones)
         obj += alpha * Yt1.T.dot(Yt1)
 
-        diagYtY_minus_beta = np.linalg.norm(Y, axis=1) - beta
-        obj -= lambda1.dot(diagYtY_minus_beta)
-        obj += .5 * sigma1 * np.sum(diagYtY_minus_beta ** 2)
+        diagYtY_minus_beta = np.sum(Y ** 2, axis=1) - beta
+        obj += lagrange_mul.dot(diagYtY_minus_beta)
+        obj += .5 * sigma * np.sum(np.maximum(diagYtY_minus_beta, 0) ** 2)
 
-        return obj
+        return obj[0, 0]
 
-    def grad(x, lambda1, sigma1):
+    def grad(x, lagrange_mul, sigma):
         Y = x.reshape(Y_shape)
 
         if X_norm.shape[0] > X_norm.shape[1]:
@@ -297,24 +299,25 @@ def copositive_burer_monteiro(X, alpha, beta, rank=None, maxiter=5e3, tol=1e-5,
         Yt1 = Y.T.dot(ones)
         delta += 2 * alpha * ones.dot(Yt1.T)
 
-        delta -= 2 * np.diag(lambda1 - sigma1 * (np.diag(Y.dot(Y.T)) - beta)).dot(Y)
+        diagYtY_minus_beta = np.maximum(np.sum(Y ** 2, axis=1) - beta, 0)
+        delta += 2 * np.diag(lagrange_mul + sigma * diagYtY_minus_beta).dot(Y)
 
         return delta.flatten()
 
     if X_norm.shape[0] > X_norm.shape[1]:
-        Y = symnmf_gram_admm(X_norm, rank)
+        da = DecomposedArray(X_norm, c=-alpha)
+        Y = symnmf_admm(da, rank)
     else:
         Y = symnmf_admm(XXt, rank)
 
-    lambda1 = np.zeros((len(X),))
-    sigma1 = 1
-    step = 1
+    lagrange_mul = np.zeros((len(X),))
 
     error = []
-    error_lag_mul = []
+    error_constraint = []
+    obj_value = []
     for n_iter in range(int(maxiter)):
-        fun = partial(lagrangian, lambda1=lambda1, sigma1=sigma1)
-        jac = partial(grad, lambda1=lambda1, sigma1=sigma1)
+        fun = partial(lagrangian, lagrange_mul=lagrange_mul, sigma=sigma)
+        jac = partial(grad, lagrange_mul=lagrange_mul, sigma=sigma)
         bounds = [(0, beta)] * np.prod(Y_shape)
 
         Y_old = Y.copy()
@@ -322,18 +325,38 @@ def copositive_burer_monteiro(X, alpha, beta, rank=None, maxiter=5e3, tol=1e-5,
                        method='L-BFGS-B',)
         Y = res.x.reshape(Y_shape)
 
-        lambda1_old = lambda1.copy()
-        lambda1 -= step * sigma1 * (np.linalg.norm(Y, axis=1) - beta)
-        lambda1 = np.minimum(lambda1, 0)
+        norm_diff = np.sum(Y ** 2, axis=1) - beta
+
+        lagrange_mul += step * sigma * norm_diff
+        np.maximum(lagrange_mul, 0, out=lagrange_mul)
 
         norm_const = 1e-16 + np.linalg.norm(np.linalg.norm(Y_old))
         error.append(np.linalg.norm(Y - Y_old) / norm_const)
-        norm_const = 1e-16 + np.linalg.norm(lambda1_old)
-        error_lag_mul.append(np.linalg.norm(lambda1 - lambda1_old) / norm_const)
+        error_constraint.append(np.maximum(norm_diff, 0).mean())
 
-        print(X_norm.dot(X_norm.T).max(), Y.min(), Y.max(), beta, np.linalg.norm(Y, axis=1).min(), np.linalg.norm(Y, axis=1).max(), error[-1], error_lag_mul[-1])
+        Yt1 = Y.T.dot(ones)
+        obj = np.trace(Y.T.dot(X).dot(X.T.dot(Y))) - alpha * Yt1.T.dot(Yt1)
+        obj_value.append(obj[0, 0])
 
-        if error[-1] < tol and error_lag_mul[-1] < lag_tol:
+        if verbose:
+            fmt_str = '{: 4d} {:.5f} | ' \
+                      'Y bounds {:.5f} {:.5f} | ' \
+                      'beta {:.5f} | ' \
+                      'Ynorm - beta {:.5f} {:.5f} | ' \
+                      'E {:.10f} {:.10f}'
+            print(fmt_str.format(n_iter, X_norm.dot(X_norm.T).max(),
+                                 Y.min(), Y.max(),
+                                 beta,
+                                 norm_diff.min(), norm_diff.max(),
+                                 error[-1], error_constraint[-1]
+                                 ))
+
+        if error[-1] < tol and error_constraint[-1] < constraint_tol:
             break
+
+    # if verbose:
+    #     import matplotlib.pyplot as plt
+    #     plt.figure()
+    #     plt.semilogy(obj_value)
 
     return Y
