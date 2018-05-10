@@ -8,7 +8,7 @@ from scipy.stats import circmean
 import seaborn as sns
 from nomad import nomad, symnmf_admm, sdp_km_burer_monteiro
 from data import real, toy
-from tests.utils import plot_matrix, plot_data_clustered
+from experiments.utils import plot_matrix, plot_data_clustered
 
 
 dir_name = '../results/'

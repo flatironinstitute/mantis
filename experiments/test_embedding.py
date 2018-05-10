@@ -7,7 +7,7 @@ import os
 import seaborn.apionly as sns
 from nomad import nomad_embedding
 from data import toy, real
-from tests.utils import plot_matrix, plot_data_embedded, plot_images_embedded
+from experiments.utils import plot_matrix, plot_data_embedded, plot_images_embedded
 
 dir_name = '../results/'
 if not os.path.exists(dir_name):

@@ -5,7 +5,7 @@ import os
 import seaborn.apionly as sns
 from nomad import nomad, sdp_km_conditional_gradient
 from data import real, toy
-from tests.utils import plot_matrix, plot_data_clustered
+from experiments.utils import plot_matrix, plot_data_clustered
 
 dir_name = '../results/'
 if not os.path.exists(dir_name):

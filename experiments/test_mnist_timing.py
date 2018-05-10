@@ -8,7 +8,7 @@ import seaborn.apionly as sns
 import sys
 from data import real
 from nomad import nomad, sdp_km_burer_monteiro
-from tests.utils import Logger
+from experiments.utils import Logger
 
 dir_name = '../results/'
 if not os.path.exists(dir_name):

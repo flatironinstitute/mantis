@@ -8,7 +8,7 @@ from scipy.linalg import dft
 import seaborn.apionly as sns
 from nomad import nomad, dot_matrix
 from data import toy
-from tests.utils import plot_matrix, plot_data_clustered
+from experiments.utils import plot_matrix, plot_data_clustered
 
 dir_name = '../results/'
 if not os.path.exists(dir_name):

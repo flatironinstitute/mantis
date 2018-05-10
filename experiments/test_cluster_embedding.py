@@ -8,7 +8,7 @@ import seaborn.apionly as sns
 from nomad import connected_components, log_scale, nomad,\
     spectral_embedding
 from data import toy, real
-from tests.utils import plot_matrix, plot_data_clustered, plot_data_embedded,\
+from experiments.utils import plot_matrix, plot_data_clustered, plot_data_embedded,\
     plot_images_embedded
 
 dir_name = '../results/'
