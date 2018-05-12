@@ -74,7 +74,7 @@ def sdp_km_burer_monteiro(X, n_clusters, rank=None, maxiter=1e3, tol=1e-5,
         else:
             obj = -np.trace(Y.T.dot(XXt).dot(Y))
 
-        trYtY_minus_nclusters = np.trace(Y.T.dot(Y)) - n_clusters
+        trYtY_minus_nclusters = np.sum(Y ** 2) - n_clusters
         obj -= lambda1 * trYtY_minus_nclusters
         obj += .5 * sigma1 * trYtY_minus_nclusters ** 2
 
@@ -92,12 +92,11 @@ def sdp_km_burer_monteiro(X, n_clusters, rank=None, maxiter=1e3, tol=1e-5,
         else:
             delta = -2 * XXt.dot(Y)
 
-        YtY = Y.T.dot(Y)
-        delta -= 2 * (lambda1
-                      -sigma1 * (np.trace(YtY) - n_clusters)) * Y
+        delta -= 2 * (lambda1 - sigma1 * (np.sum(Y ** 2) - n_clusters)) * Y
 
         delta -= ones.dot(lambda2.T.dot(Y)) + lambda2.dot(ones.T.dot(Y))
 
+        YtY = Y.T.dot(Y)
         Yt1 = Y.T.dot(ones)
         delta += sigma2 * (Y.dot(Yt1).dot(Yt1.T) + ones.dot(Yt1.T).dot(YtY)
                            -2 * ones.dot(Yt1.T))
@@ -132,7 +131,7 @@ def sdp_km_burer_monteiro(X, n_clusters, rank=None, maxiter=1e3, tol=1e-5,
                        method='L-BFGS-B',)
         Y = res.x.reshape(Y_shape)
 
-        lambda1 -= step * sigma1 * (np.trace(Y.T.dot(Y)) - n_clusters)
+        lambda1 -= step * sigma1 * (np.sum(Y ** 2) - n_clusters)
         lambda2 -= step * sigma2 * (Y.dot(Y.T.dot(ones)) - ones)
 
         error.append(np.linalg.norm(Y - Y_old) / np.linalg.norm(Y_old))
@@ -142,7 +141,7 @@ def sdp_km_burer_monteiro(X, n_clusters, rank=None, maxiter=1e3, tol=1e-5,
             fmt_str = '{: 4d} | Y bounds {:.5f} {:.5f} | ' \
                       'constraints {:.10f} {:.10f} | E {:.10f}'
             print(fmt_str.format(n_iter, Y.min(), Y.max(),
-                                 np.trace(Y.T.dot(Y)) - n_clusters,
+                                 np.sum(Y ** 2) - n_clusters,
                                  np.abs(YYt1_minus_1).max(),
                                  error[-1]
                                  ))
