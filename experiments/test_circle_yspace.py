@@ -36,7 +36,9 @@ def plot_bumps_1d(Y, subsampling=20, labels=None, labels_palette='hls',
     if ax is None:
         ax = plt.gca()
 
-    ax.plot(Y[:, ::subsampling])
+    Y_subsampled = Y[:, ::subsampling]
+
+    ax.plot(Y_subsampled)
     ax.set_xticks([])
 
     if labels is not None:
@@ -48,7 +50,7 @@ def plot_bumps_1d(Y, subsampling=20, labels=None, labels_palette='hls',
             subset = np.where(labels == lab)[0]
             segments.append((subset[0] - 0.5, subset[-1] + 0.5))
 
-        offset = -0.008
+        offset = -0.1 * Y_subsampled.max()
         h_segments = [((s[0], offset), (s[1], offset)) for s in segments]
 
         colors = sns.color_palette(labels_palette, n_colors=len(unique_labels))
@@ -135,7 +137,7 @@ def test_one_circle(n_clusters=8, use_copositive=False):
 
     pdf_file_name = '{}{}_plot_{}_on_data_{}'
     plt.figure()
-    bumps_locs = np.linspace(0, len(X), num=6, endpoint=False, dtype=np.int)
+    bumps_locs = np.linspace(0, Y.shape[1], num=6, endpoint=False, dtype=np.int)
     plot_bumps_on_data(X, [Y[:, i] for i in bumps_locs], palette='Set1')
     plt.savefig(pdf_file_name.format(dir_name, name, 'Y', 'multiple.png'),
                 dpi=300)
