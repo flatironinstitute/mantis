@@ -84,7 +84,7 @@ def test_grid(n_clusters=16, use_copositive=False):
     idx = np.argsort(np.argmax(Y, axis=0))
     Y = Y[:, idx]
 
-    sns.set_style('whitegrid')
+    sns.set_style('white')
 
     plt.figure(figsize=(12, 4.7), tight_layout=True)
     gs = gridspec.GridSpec(1, 3)
@@ -126,7 +126,7 @@ def test_grid(n_clusters=16, use_copositive=False):
 
     _, ax = plt.subplots(1, 1)
     plot_matrix(Y_aligned, ax=ax)
-    plt_title = ax.set_title('Aligned $\mathbf{Y}^\top$', fontsize='xx-large')
+    plt_title = ax.set_title(r'Aligned $\mathbf{Y}^\top$', fontsize='xx-large')
     plt_title.set_position((0.5, 1.07))
     plt.savefig('{}{}_Y_aligned_2d.pdf'.format(dir_name, name))
 
@@ -134,7 +134,7 @@ def test_grid(n_clusters=16, use_copositive=False):
     ax.plot(Y_aligned)
     ax.set_xticks([])
     ax.set_yticks([])
-    ax.set_title('Aligned $\mathbf{Y}$ columns', fontsize='xx-large')
+    ax.set_title(r'Aligned $\mathbf{Y}$ rows', fontsize='xx-large')
     plt.savefig('{}{}Y_aligned_1d.pdf'.format(dir_name, name))
 
     pos = np.arange(len(Y))
@@ -153,7 +153,7 @@ def test_grid(n_clusters=16, use_copositive=False):
     ax.legend([(plt_mean[0], plt_aux[0]), plt_median[0]],
               [r'Mean $\pm1$ STD', 'Median'],
               loc='upper left', fontsize='xx-large')
-    ax.set_title('Aligned $\mathbf{Y}$ columns', fontsize='xx-large')
+    ax.set_title(r'Aligned $\mathbf{Y}$ columns', fontsize='xx-large')
     plt.savefig('{}{}Y_aligned_1d_summary.pdf'.format(dir_name, name))
 
 

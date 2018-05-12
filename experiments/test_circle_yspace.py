@@ -151,14 +151,14 @@ def test_one_circle(n_clusters=8, use_copositive=False):
 
     _, ax = plt.subplots(1, 1)
     plot_bumps_1d(Y, labels=labels, ax=ax)
-    ax.set_title(r'$\mathbf{Y}$ columns', fontsize='xx-large')
+    ax.set_title(r'$\mathbf{Y}$ rows', fontsize='xx-large')
     plt.savefig('{}{}Y_1d.pdf'.format(dir_name, name), dpi=300)
 
     _, ax = plt.subplots(1, 1)
     ax.plot(Y_aligned)
     ax.set_xticks([])
     ax.set_yticks([])
-    ax.set_title(r'Aligned $\mathbf{Y}$ columns', fontsize='xx-large')
+    ax.set_title(r'Aligned $\mathbf{Y}$ rows', fontsize='xx-large')
     plt.savefig('{}{}Y_aligned_1d.pdf'.format(dir_name, name), dpi=300)
 
     pos = np.arange(len(Y))
