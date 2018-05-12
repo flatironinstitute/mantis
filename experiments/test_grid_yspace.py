@@ -117,7 +117,7 @@ def test_grid(n_clusters=16, use_copositive=False):
 
     pdf_file_name = '{}{}_plot_{}_on_data_{}'
     plt.figure()
-    bumps_locs = np.random.random_integers(len(X), size=6)
+    bumps_locs = np.random.random_integers(Y.shape[1], size=6)
     plot_bumps_on_data(X, [Y[:, i] for i in bumps_locs], palette='Set1')
     plt.savefig(pdf_file_name.format(dir_name, name, 'Y', 'multiple.png'),
                 dpi=300)
