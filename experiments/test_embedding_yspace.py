@@ -11,6 +11,9 @@ from nomad import spectral_embedding, sdp_km_burer_monteiro,\
 from data import toy, real
 from experiments.utils import plot_matrix, plot_data_embedded, plot_images_embedded
 
+plt.rc('text', usetex=True)
+plt.rc('text.latex', preamble=r'\usepackage{amsmath}')
+
 dir_name = '../results/'
 if not os.path.exists(dir_name):
     os.mkdir(dir_name)
@@ -97,8 +100,8 @@ def test_toy_embedding(X, Y, n_clusters, target_dim, filename,
     plot_data_embedded(X, ax=ax, palette=palette, elev_azim=elev_azim)
     ax.set_title('Input dataset', fontsize='xx-large')
 
-    titles = ['Input Gramian $\mathbf{{D}}$',
-              '$\mathbf{{Q}}$ ($K={0}, r={1}$)'.format(n_clusters, Y.shape[1])]
+    titles = ['Input Gramian $\mathbf{D}$',
+              '$\mathbf{Q}$ ($K={0}, r={1}$)'.format(n_clusters, Y.shape[1])]
     for i, (M, t) in enumerate(zip([D, Q], titles)):
         ax = plt.subplot(gs[i + 1])
         plot_matrix(M, ax=ax, labels=labels, which_labels='both',
@@ -109,7 +112,8 @@ def test_toy_embedding(X, Y, n_clusters, target_dim, filename,
     ax = plt.subplot(gs[3])
     plot_matrix(Y, ax=ax, labels=labels, which_labels='vertical',
                 labels_palette=palette)
-    title_y = '$\mathbf{{Y}}$ ($K={0}, r={1}$)'.format(n_clusters, Y.shape[1])
+    title_y = '$\mathbf{Y}^\top$ ($K={0}, r={1}$)'.format(n_clusters,
+                                                            Y.shape[1])
     plt_title = ax.set_title(title_y, fontsize='xx-large')
     plt_title.set_position((0.5, 1.07))
 
@@ -160,8 +164,8 @@ def test_real_embedding(X, Y, n_clusters, target_dim, img_getter,
     plt.figure(figsize=(15, 4), tight_layout=True)
     gs = gridspec.GridSpec(1, 4, wspace=0.)
 
-    titles = ['Input Gramian $\mathbf{{D}}$',
-              '$\mathbf{{Q}}$ ($K={0}, r={1}$)'.format(n_clusters, Y.shape[1])]
+    titles = ['Input Gramian $\mathbf{D}$',
+              '$\mathbf{Q}$ ($K={0}, r={1}$)'.format(n_clusters, Y.shape[1])]
     for i, (M, t) in enumerate(zip([D, Q], titles)):
         ax = plt.subplot(gs[i])
         plot_matrix(M, ax=ax, labels=point_labels, which_labels='both',
@@ -172,7 +176,8 @@ def test_real_embedding(X, Y, n_clusters, target_dim, img_getter,
     ax = plt.subplot(gs[2])
     plot_matrix(Y, ax=ax, labels=point_labels, which_labels='vertical',
                 labels_palette=palette)
-    title_y = '$\mathbf{{Y}}$ ($K={0}, r={1}$)'.format(n_clusters, Y.shape[1])
+    title_y = '$\mathbf{Y}^\top$ ($K={0}, r={1}$)'.format(n_clusters,
+                                                            Y.shape[1])
     plt_title = ax.set_title(title_y, fontsize='xx-large')
     plt_title.set_position((0.5, 1.07))
 

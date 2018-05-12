@@ -7,6 +7,9 @@ import seaborn.apionly as sns
 from nomad import sdp_km_burer_monteiro, copositive_burer_monteiro
 from experiments.utils import plot_matrix, plot_data_embedded
 
+plt.rc('text', usetex=True)
+plt.rc('text.latex', preamble=r'\usepackage{amsmath}')
+
 dir_name = '../results/'
 if not os.path.exists(dir_name):
     os.mkdir(dir_name)
@@ -84,7 +87,7 @@ def test_grid(n_clusters=16, use_copositive=False):
     sns.set_style('whitegrid')
 
     plt.figure(figsize=(12, 4.7), tight_layout=True)
-    gs = gridspec.GridSpec(1, 3, width_ratios=(0.78, 0.78, 1))
+    gs = gridspec.GridSpec(1, 3)
 
     ax = plt.subplot(gs[0])
     plot_data_embedded(X, palette='hls', ax=ax)
@@ -94,13 +97,13 @@ def test_grid(n_clusters=16, use_copositive=False):
     ax = plt.subplot(gs[1])
     plot_matrix(Q, ax=ax, labels=labels, which_labels='both',
                 labels_palette='hls')
-    plt_title = ax.set_title('$\mathbf{{Q}}$', fontsize='xx-large')
+    plt_title = ax.set_title(r'$\mathbf{Q}$', fontsize='xx-large')
     plt_title.set_position((0.5, 1.07))
 
     ax = plt.subplot(gs[2])
     plot_matrix(Y, ax=ax, labels=labels, which_labels='vertical',
                 labels_palette='hls')
-    plt_title = ax.set_title('$\mathbf{{Y}}$', fontsize='xx-large')
+    plt_title = ax.set_title(r'$\mathbf{Y}^\top$', fontsize='xx-large')
     plt_title.set_position((0.5, 1.07))
 
     plt.savefig('{}{}.pdf'.format(dir_name, name))
@@ -123,7 +126,7 @@ def test_grid(n_clusters=16, use_copositive=False):
 
     _, ax = plt.subplots(1, 1)
     plot_matrix(Y_aligned, ax=ax)
-    plt_title = ax.set_title('Aligned $\mathbf{{Y}}$', fontsize='xx-large')
+    plt_title = ax.set_title('Aligned $\mathbf{Y}^\top$', fontsize='xx-large')
     plt_title.set_position((0.5, 1.07))
     plt.savefig('{}{}_Y_aligned_2d.pdf'.format(dir_name, name))
 
@@ -131,7 +134,7 @@ def test_grid(n_clusters=16, use_copositive=False):
     ax.plot(Y_aligned)
     ax.set_xticks([])
     ax.set_yticks([])
-    ax.set_title('Aligned $\mathbf{{Y}}$ columns', fontsize='xx-large')
+    ax.set_title('Aligned $\mathbf{Y}$ columns', fontsize='xx-large')
     plt.savefig('{}{}Y_aligned_1d.pdf'.format(dir_name, name))
 
     pos = np.arange(len(Y))
@@ -150,7 +153,7 @@ def test_grid(n_clusters=16, use_copositive=False):
     ax.legend([(plt_mean[0], plt_aux[0]), plt_median[0]],
               [r'Mean $\pm1$ STD', 'Median'],
               loc='upper left', fontsize='xx-large')
-    ax.set_title('Aligned $\mathbf{{Y}}$ columns', fontsize='xx-large')
+    ax.set_title('Aligned $\mathbf{Y}$ columns', fontsize='xx-large')
     plt.savefig('{}{}Y_aligned_1d_summary.pdf'.format(dir_name, name))
 
 
