@@ -143,6 +143,7 @@ def test_toy_embedding(X, Y, n_clusters, target_dim, filename,
     pdf_file_name = '{}{}_plot_{}_1d_{}'
     _, ax = plt.subplots(1, 1)
     plot_bumps_1d(Y, subsampling=10, labels=labels, ax=ax)
+    ax.set_title('Aligned $\mathbf{Y}$ columns', fontsize='xx-large')
     plt.savefig(pdf_file_name.format(dir_name, filename, 'Y', '.pdf'),
                 dpi=300)
 
@@ -213,6 +214,7 @@ def test_real_embedding(X, Y, n_clusters, target_dim, img_getter,
     plt.figure()
     _, ax = plt.subplots(1, 1)
     plot_bumps_1d(Y, subsampling=10, labels=point_labels, ax=ax)
+    ax.set_title('Aligned $\mathbf{Y}$ columns', fontsize='xx-large')
     plt.savefig(pdf_file_name.format(dir_name, filename, 'Y', '.pdf'),
                 dpi=300)
 
