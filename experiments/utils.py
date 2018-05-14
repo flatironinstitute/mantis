@@ -34,16 +34,6 @@ def plot_matrix(mat, cmap='gray_r', labels=None, which_labels='both',
 
     vmin = values.min()
     vmax = values.max()
-    if ((vmax - vmin) / vmax) > 1e-3:
-        values_mean = np.mean(values)
-        values_std = np.std(values)
-        vmin = np.maximum(vmin, values_mean - 10 * values_std)
-        vmax = np.minimum(vmax, values_mean + 10 * values_std)
-
-        ax.imshow(mat, interpolation='none', cmap=cmap, vmin=vmin, vmax=vmax)
-    else:
-        mat = ((vmin + vmax) / 2) * np.ones_like(mat)
-        ax.imshow(mat, interpolation='none', cmap=cmap)
 
     plt_image = ax.imshow(mat, interpolation='none', cmap=cmap, vmin=vmin,
                           vmax=vmax)
@@ -142,20 +132,18 @@ warnings.formatwarning = lambda message, category, filename, lineno, line=None:\
     formatwarning_orig(message, category, filename, lineno, line='')
 
 
-def plot_data_embedded(X, palette='hls', marker='o', ax=None, elev_azim=None,
-                       alpha=1):
+def plot_data_embedded(X, **kwargs):
     if X.shape[1] != 2 and X.shape[1] != 3:
         msg = 'Plotting first two dimensions out of {}.'.format(X.shape[1])
         warnings.warn(msg, category=RuntimeWarning)
 
         X = X[:, :2]
 
-    _plot_data_embedded(X, palette=palette, marker=marker, ax=ax,
-                        elev_azim=elev_azim, alpha=alpha)
+    _plot_data_embedded(X, **kwargs)
 
 
 def _plot_data_embedded(X, palette='hls', marker='o', ax=None, elev_azim=None,
-                       alpha=1):
+                       alpha=1, edgecolors=None):
     if ax is None:
         ax = plt.gca()
 
@@ -175,9 +163,11 @@ def _plot_data_embedded(X, palette='hls', marker='o', ax=None, elev_azim=None,
     try:
         colors = [c + (a,) for c, a in zip(colors, alpha)]
         alpha = None
-        edgecolors = 'k'
+        if edgecolors is None:
+            edgecolors = 'k'
     except TypeError:
-        edgecolors = colors
+        if edgecolors is None:
+            edgecolors = colors
 
     X_max = X.max(axis=0)
     X_min = X.min(axis=0)
@@ -198,7 +188,7 @@ def _plot_data_embedded(X, palette='hls', marker='o', ax=None, elev_azim=None,
         if elev_azim is not None:
             ax.view_init(elev=elev_azim[0], azim=elev_azim[1])
 
-        ax.scatter(X[:, 0], X[:, 1], X[:, 2], c=colors, edgecolors=colors,
+        ax.scatter(X[:, 0], X[:, 1], X[:, 2], c=colors, edgecolors=edgecolors,
                    marker=marker, alpha=alpha)
 
         ax.set_xlim(center[0] - range, center[0] + range)
