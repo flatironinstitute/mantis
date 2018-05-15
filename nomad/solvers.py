@@ -146,7 +146,6 @@ def sdp_km_burer_monteiro(X, n_clusters, rank=None, maxiter=1e3, tol=1e-5,
                                  error[-1]
                                  ))
 
-
         if error[-1] < tol:
             break
 
