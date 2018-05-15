@@ -7,6 +7,8 @@ def generate_sphere_grid(n_subdivisions=2, return_faces=False):
     for x in range(n_subdivisions):
         verts, faces = subdivide(verts, faces)
 
+    verts = np.array(verts)
+
     if return_faces:
         return verts, faces
     else:
