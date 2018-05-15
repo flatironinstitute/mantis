@@ -1,6 +1,7 @@
 import math
 import numpy as np
 
+
 def generate_sphere_grid(n_subdivisions=2, return_faces=False):
     verts, faces = icosahedron()
     for x in range(n_subdivisions):
@@ -93,7 +94,7 @@ def subdivide(verts, faces):
     return verts, faces
 
 
-if __name__ == '__main__':
+def main():
     num_subdivisions = 2
     verts, faces = icosahedron()
     for x in range(num_subdivisions):
@@ -123,4 +124,5 @@ if __name__ == '__main__':
     print(min(dists), max(dists))
 
 
-
+if __name__ == '__main__':
+    main()
