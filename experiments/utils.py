@@ -26,7 +26,7 @@ def plot_confusion_matrix(conf_mat):
 
 
 def plot_matrix(mat, cmap='gray_r', labels=None, which_labels='both',
-                labels_palette='Set1', ax=None):
+                labels_palette='Set1', ax=None, colorbar_labelsize=None):
     if ax is None:
         ax = plt.gca()
 
@@ -44,8 +44,10 @@ def plot_matrix(mat, cmap='gray_r', labels=None, which_labels='both',
                    left='off', right='off',
                    labelbottom='off', labelleft='off')
 
-    plt.colorbar(plt_image, orientation='horizontal', pad=.05, fraction=.05,
-                 ax=ax)
+    cbar = plt.colorbar(plt_image, orientation='horizontal', pad=.05,
+                        fraction=.05, ax=ax)
+    if colorbar_labelsize is not None:
+        cbar.ax.tick_params(labelsize=colorbar_labelsize)
 
     if labels is not None:
         labels = np.sort(labels)
