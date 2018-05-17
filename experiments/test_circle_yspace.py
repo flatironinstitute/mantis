@@ -82,6 +82,8 @@ def align_bumps(Y, ref_idx):
 
 
 def test_one_circle(n_clusters=8, use_copositive=False):
+    np.random.seed(1)
+
     X, gt = toy.circles(n_samples=200)
     X = X[gt == 0, :]
     labels = np.arange(len(X))
@@ -94,11 +96,13 @@ def test_one_circle(n_clusters=8, use_copositive=False):
                                       tol=1e-5, constraint_tol=1e-5,
                                       verbose=True)
         name = 'circle_copositive_bm'
+        bump_subsampling = 20
         cos_freq = 0.13
     else:
         Y = sdp_km_burer_monteiro(X, n_clusters, rank=rank, tol=1e-5,
                                   verbose=True)
         name = 'circle_sdpkm_bm'
+        bump_subsampling = 10
         cos_freq = 0.2
 
     Q = Y.dot(Y.T)
@@ -115,18 +119,18 @@ def test_one_circle(n_clusters=8, use_copositive=False):
 
     ax = plt.subplot(gs[0])
     plot_data_embedded(X, palette='hls', ax=ax)
-    ax.set_title('Input dataset', fontsize='xx-large')
+    ax.set_title('Input dataset', fontsize=30)
 
     ax = plt.subplot(gs[1])
     plot_matrix(Q, ax=ax, labels=labels, which_labels='both',
-                labels_palette='hls')
-    plt_title = ax.set_title(r'$\mathbf{Q}$', fontsize='xx-large')
+                labels_palette='hls', colorbar_labelsize=15)
+    plt_title = ax.set_title(r'$\mathbf{Y}^\top \mathbf{Y}$', fontsize=25)
     plt_title.set_position((0.5, 1.07))
 
     ax = plt.subplot(gs[2])
     plot_matrix(Y, ax=ax, labels=labels, which_labels='vertical',
-                labels_palette='hls')
-    plt_title = ax.set_title(r'$\mathbf{Y}^\top$', fontsize='xx-large')
+                labels_palette='hls', colorbar_labelsize=15)
+    plt_title = ax.set_title(r'$\mathbf{Y}^\top$', fontsize=25)
     plt_title.set_position((0.5, 1.07))
 
     plt.savefig('{}{}.pdf'.format(dir_name, name), dpi=300)
@@ -148,21 +152,21 @@ def test_one_circle(n_clusters=8, use_copositive=False):
 
     _, ax = plt.subplots(1, 1)
     plot_matrix(Y_aligned, ax=ax)
-    plt_title = ax.set_title(r'Aligned $\mathbf{Y}^\top$',
-                             fontsize='xx-large')
+    plt_title = ax.set_title('Aligned receptive fields', fontsize=25)
     plt_title.set_position((0.5, 1.07))
     plt.savefig('{}{}_Y_aligned_2d.pdf'.format(dir_name, name), dpi=300)
 
     _, ax = plt.subplots(1, 1)
-    plot_bumps_1d(Y, labels=labels, ax=ax)
-    ax.set_title(r'$\mathbf{Y}$ rows', fontsize='xx-large')
+    plot_bumps_1d(Y, labels=labels, ax=ax, subsampling=bump_subsampling)
+    ax.set_yticks([])
+    ax.set_title('Receptive fields', fontsize=25)
     plt.savefig('{}{}Y_1d.pdf'.format(dir_name, name), dpi=300)
 
     _, ax = plt.subplots(1, 1)
     ax.plot(Y_aligned)
     ax.set_xticks([])
     ax.set_yticks([])
-    ax.set_title(r'Aligned $\mathbf{Y}$ rows', fontsize='xx-large')
+    ax.set_title('Aligned receptive fields', fontsize=25)
     plt.savefig('{}{}Y_aligned_1d.pdf'.format(dir_name, name), dpi=300)
 
     pos = np.arange(len(Y))
@@ -180,21 +184,20 @@ def test_one_circle(n_clusters=8, use_copositive=False):
 
     _, ax = plt.subplots(1, 1)
     plt_mean = ax.plot(pos, mu, color='#377eb8')
-    ax.fill_between(pos, np.maximum(mu - sigma, 0), mu + sigma, alpha=0.3,
-                    color='#377eb8')
-    # plt_median = ax.plot(pos, median, '-.', color='#e41a1c')
+    ax.fill_between(pos, np.maximum(mu - 3 * sigma, 0), mu + 3 * sigma,
+                    alpha=0.3, color='#377eb8')
     plt_cosine = ax.plot(pos, cosine(pos), '-.', color='#e41a1c')
     ax.set_xticks([])
     ax.set_yticks([])
     plt_aux = ax.fill(np.NaN, np.NaN, '#377eb8', alpha=0.3, linewidth=0)
     ax.legend([(plt_mean[0], plt_aux[0]), plt_cosine[0]],
-              [r'Mean $\pm1$ STD', 'Truncated cosine'],
-              loc='upper left', fontsize='xx-large')
-    ax.set_title(r'Aligned $\mathbf{Y}$ columns', fontsize='xx-large')
+              [r'Mean $\pm$ 3 STD', 'Truncated cosine'],
+              loc='center left', fontsize=25)
+    ax.set_title(r'Receptive fields summary', fontsize=25)
     plt.savefig('{}{}Y_aligned_1d_summary.pdf'.format(dir_name, name), dpi=300)
 
 
 if __name__ == '__main__':
     test_one_circle(use_copositive=True)
-    test_one_circle(use_copositive=False)
+    # test_one_circle(use_copositive=False)
     plt.show()
