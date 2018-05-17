@@ -108,6 +108,11 @@ def main():
     verts = np.array(verts)
     print(len(verts))
 
+    import scipy.io
+
+    scipy.io.savemat('sphere_{}.mat'.format(len(verts)),
+                     {'X': verts, 'tri': faces})
+
     plt.figure()
     ax = plt.subplot(111, projection='3d')
     ax.plot_trisurf(verts[:, 0], verts[:, 1], verts[:, 2], triangles=faces)
