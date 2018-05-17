@@ -94,6 +94,8 @@ def align_bumps(Y, ref_idx):
 
 
 def test_one_circle(n_clusters=25, use_copositive=False):
+    np.random.seed(10)
+
     X = sphere.generate_sphere_grid()
     print(X.shape)
     labels = np.arange(len(X))
@@ -146,5 +148,5 @@ def test_one_circle(n_clusters=25, use_copositive=False):
 
 if __name__ == '__main__':
     test_one_circle(use_copositive=True)
-    test_one_circle(use_copositive=False)
+    # test_one_circle(use_copositive=False)
     plt.show()
