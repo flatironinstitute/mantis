@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import seaborn.apionly as sns
-from nomad import sdp_km_burer_monteiro, copositive_burer_monteiro
+from mantis import sdp_km_burer_monteiro, copositive_burer_monteiro
 from experiments.utils import plot_matrix, plot_data_embedded
 
 plt.rc('text', usetex=True)
@@ -112,7 +112,8 @@ def test_grid(n_clusters=16, use_copositive=False):
     for i in range(Y.shape[1]):
         plt.figure()
         plot_bumps_on_data(X, [Y[:, i]])
-        plt.savefig(pdf_file_name.format(dir_name, name, 'Y', i, '.png'))
+        plt.savefig(pdf_file_name.format(dir_name, name, 'Y', i, '.png'),
+                    dpi=300, bbox_inches='tight')
         plt.close()
 
     pdf_file_name = '{}{}_plot_{}_on_data_{}'
@@ -120,7 +121,7 @@ def test_grid(n_clusters=16, use_copositive=False):
     bumps_locs = np.random.random_integers(Y.shape[1], size=6)
     plot_bumps_on_data(X, [Y[:, i] for i in bumps_locs], palette='Set1')
     plt.savefig(pdf_file_name.format(dir_name, name, 'Y', 'multiple.png'),
-                dpi=300)
+                dpi=300, bbox_inches='tight')
 
     Y_aligned = align_bumps(Y, Y.shape[1] // 2)
 
@@ -134,7 +135,7 @@ def test_grid(n_clusters=16, use_copositive=False):
     ax.plot(Y_aligned)
     ax.set_xticks([])
     ax.set_yticks([])
-    ax.set_title(r'Aligned $\mathbf{Y}$ rows', fontsize='xx-large')
+    ax.set_title(r'Receptive fields', fontsize='xx-large')
     plt.savefig('{}{}Y_aligned_1d.pdf'.format(dir_name, name))
 
     pos = np.arange(len(Y))
@@ -144,16 +145,16 @@ def test_grid(n_clusters=16, use_copositive=False):
 
     _, ax = plt.subplots(1, 1)
     plt_mean = ax.plot(pos, mu, color='#377eb8')
-    ax.fill_between(pos, np.maximum(mu - sigma, 0), mu + sigma, alpha=0.3,
-                    color='#377eb8')
+    ax.fill_between(pos, np.maximum(mu - 3 * sigma, 0), mu + 3 * sigma,
+                    alpha=0.3, color='#377eb8')
     plt_median = ax.plot(pos, median, '-.', color='#e41a1c')
     ax.set_xticks([])
     ax.set_yticks([])
     plt_aux = ax.fill(np.NaN, np.NaN, '#377eb8', alpha=0.3, linewidth=0)
     ax.legend([(plt_mean[0], plt_aux[0]), plt_median[0]],
-              [r'Mean $\pm1$ STD', 'Median'],
+              [r'Mean $\pm$ 3 STD', 'Median'],
               loc='upper left', fontsize='xx-large')
-    ax.set_title(r'Aligned $\mathbf{Y}$ columns', fontsize='xx-large')
+    ax.set_title(r'Receptive fields summary', fontsize='xx-large')
     plt.savefig('{}{}Y_aligned_1d_summary.pdf'.format(dir_name, name))
 
 
