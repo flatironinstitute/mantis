@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import os
+import pickle
 import seaborn.apionly as sns
 from mantis import spectral_embedding, sdp_km_burer_monteiro,\
     copositive_burer_monteiro, dot_matrix
@@ -271,7 +272,8 @@ def test_teapot():
     test_real_embedding(X, Y, n_clusters, teapot_img, 'teapot_' + name)
 
 
-def test_mnist(digit=1, n_samples=1000, n_clusters=32, subsampling=10):
+def test_mnist(digit=1, n_samples=1000, n_clusters=32, subsampling=10,
+               from_file=False):
     X = real.mnist(digit=digit, n_samples=n_samples)
     print('Number of samples:', X.shape[0])
 
@@ -281,20 +283,19 @@ def test_mnist(digit=1, n_samples=1000, n_clusters=32, subsampling=10):
 
     filename = 'mnist{}_n{}_k{}'.format(digit, n_samples, n_clusters)
 
-    import pickle
+    if not from_file:
+        Y, name = compute_yspace(X, n_clusters, rank=4 * n_clusters,
+                                 use_copositive=False)
+        idx = np.argsort(np.argmax(Y, axis=0))
+        Y = Y[:, idx]
 
-    # Y, name = compute_yspace(X, n_clusters, rank=4 * n_clusters,
-    #                          use_copositive=False)
-    # idx = np.argsort(np.argmax(Y, axis=0))
-    # Y = Y[:, idx]
-    #
-    # with open('mnist_Y.pickle', 'wb') as f:
-    #     pickle.dump(Y, f)
-    #     pickle.dump(name, f)
-
-    with open('mnist_Y.pickle', 'rb') as f:
-        Y = pickle.load(f)
-        name = pickle.load(f)
+        with open('mnist_Y.pickle', 'wb') as f:
+            pickle.dump(Y, f)
+            pickle.dump(name, f)
+    else:
+        with open('mnist_Y.pickle', 'rb') as f:
+            Y = pickle.load(f)
+            name = pickle.load(f)
 
     test_real_embedding(X, Y, n_clusters, mnist_img, filename + name,
                         subsampling=subsampling, zoom=0.5, palette='none')
@@ -303,7 +304,7 @@ def test_mnist(digit=1, n_samples=1000, n_clusters=32, subsampling=10):
 def main():
     test_trefoil()
     test_teapot()
-    test_mnist(digit=0)
+    test_mnist(digit=0, from_file=False)
 
     plt.show()
 
