@@ -97,7 +97,7 @@ def subdivide(verts, faces):
 
 
 def main():
-    num_subdivisions = 2
+    num_subdivisions = 3
     verts, faces = icosahedron()
     for x in range(num_subdivisions):
         verts, faces = subdivide(verts, faces)
