@@ -7,7 +7,7 @@ import numpy as np
 import os
 import scipy.io
 import seaborn.apionly as sns
-from nomad import sdp_km_burer_monteiro, copositive_burer_monteiro
+from mantis import sdp_km_burer_monteiro, copositive_burer_monteiro
 from data import sphere
 from experiments.utils import plot_matrix, plot_data_embedded
 
