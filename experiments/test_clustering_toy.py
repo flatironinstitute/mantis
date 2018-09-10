@@ -2,7 +2,7 @@ from __future__ import absolute_import, print_function
 import matplotlib.pyplot as plt
 import os
 import seaborn as sns
-from mantis import log_scale, nomad
+from mantis import sdp_km_burer_monteiro, log_scale
 from data import toy
 from experiments.utils import plot_matrix, plot_data_clustered
 
@@ -15,19 +15,22 @@ if not os.path.exists(dir_name):
 
 
 def test_clustering(X, gt, n_clusters, filename):
-    D, Q = nomad(X, n_clusters, method='bm')
+    Y = sdp_km_burer_monteiro(X, n_clusters, rank=len(X), tol=1e-6,
+                              verbose=True)
+    D = X.dot(X.T)
+    Q = Y.dot(Y.T)
 
     sns.set_style('white')
-    plt.figure(figsize=(12, 6), tight_layout=True)
+    plt.figure(figsize=(12, 5), tight_layout=True)
 
-    ax = plt.subplot(141)
+    ax = plt.subplot(131)
     plot_data_clustered(X, gt, ax=ax)
     ax.set_title('Input dataset', fontsize='xx-large')
 
     titles = ['Input Gramian $\mathbf{{D}}$',
               '$\mathbf{{Q}}$ ($K={0}$)'.format(n_clusters)]
     for i, (M, t) in enumerate(zip([D, Q], titles)):
-        ax = plt.subplot(1, 4, i + 2)
+        ax = plt.subplot(1, 3, i + 2)
         plot_matrix(M, ax=ax)
         ax.set_title(t, fontsize='xx-large')
 
@@ -46,6 +49,6 @@ if __name__ == '__main__':
     test_clustering(X, gt, 16, 'moons')
 
     X, gt = toy.double_swiss_roll()
-    test_clustering(X, gt, 64, 'double_swiss_roll')
+    test_clustering(X, gt, 48, 'double_swiss_roll')
 
     plt.show()
