@@ -326,7 +326,6 @@ def main():
     test_yale_faces(subjects=[1, 4, 37])
     test_yale_faces(subjects=[1, 4, 5, 27])
 
-
     plt.show()
 
 
