@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import seaborn.apionly as sns
-from nomad import sdp_km_burer_monteiro, copositive_burer_monteiro
+from mantis import sdp_km_burer_monteiro, copositive_burer_monteiro
 from data import toy
 from experiments.utils import plot_matrix, plot_data_embedded
 
@@ -18,6 +18,28 @@ if not os.path.exists(dir_name):
 dir_name += 'circle_bm/'
 if not os.path.exists(dir_name):
     os.mkdir(dir_name)
+
+
+def compute_yspace(n_clusters=8, use_copositive=True):
+    np.random.seed(1)
+
+    X, gt = toy.circles(n_samples=200)
+    X = X[gt == 0, :]
+
+    rank = len(X)
+    print(rank)
+    if use_copositive:
+        beta = n_clusters / len(X)
+        Y = copositive_burer_monteiro(X, alpha=0.01, beta=beta, rank=rank,
+                                      tol=1e-5, constraint_tol=1e-5,
+                                      verbose=True)
+        name = 'circle_copositive_bm'
+    else:
+        Y = sdp_km_burer_monteiro(X, n_clusters, rank=rank, tol=1e-5,
+                                  verbose=True)
+        name = 'circle_sdpkm_bm'
+
+    return X, Y, name
 
 
 def plot_bumps_on_data(X, bumps, palette='Set1'):
@@ -81,30 +103,9 @@ def align_bumps(Y, ref_idx):
     return Y_aligned
 
 
-def test_one_circle(n_clusters=8, use_copositive=False):
-    np.random.seed(1)
-
-    X, gt = toy.circles(n_samples=200)
-    X = X[gt == 0, :]
+def test_one_circle(X, Y, name, bump_subsampling=20, cos_freq=0.13,
+                    cos_loc=None):
     labels = np.arange(len(X))
-
-    rank = len(X)
-    print(rank)
-    if use_copositive:
-        beta = n_clusters / len(X)
-        Y = copositive_burer_monteiro(X, alpha=0.01, beta=beta, rank=rank,
-                                      tol=1e-5, constraint_tol=1e-5,
-                                      verbose=True)
-        name = 'circle_copositive_bm'
-        bump_subsampling = 20
-        cos_freq = 0.13
-    else:
-        Y = sdp_km_burer_monteiro(X, n_clusters, rank=rank, tol=1e-5,
-                                  verbose=True)
-        name = 'circle_sdpkm_bm'
-        bump_subsampling = 10
-        cos_freq = 0.2
-
     Q = Y.dot(Y.T)
 
     idx = np.argsort(np.argmax(Y, axis=0))
@@ -176,8 +177,11 @@ def test_one_circle(n_clusters=8, use_copositive=False):
 
     def cosine(x):
         peak = np.argmax(mu)
-        cos_loc = np.mean(np.where(mu == mu[peak])[0])
-        cos_bump = mu[peak] * np.cos(cos_freq * (x - cos_loc))
+        if cos_loc is None:
+            cloc = np.mean(np.where(mu == mu[peak])[0])
+        else:
+            cloc = cos_loc
+        cos_bump = mu[peak] * np.cos(cos_freq * (x - cloc))
         cos_bump[mu == 0] = 0
         cos_bump[cos_bump < 0] = 0
         return cos_bump
@@ -198,6 +202,19 @@ def test_one_circle(n_clusters=8, use_copositive=False):
 
 
 if __name__ == '__main__':
-    test_one_circle(use_copositive=True)
-    # test_one_circle(use_copositive=False)
+    X, Y, name = compute_yspace()
+    test_one_circle(X, Y, name)
+
+    import scipy.io
+    mat = scipy.io.savemat(name + '.mat', dict(X=X, Y=Y))
+
+    # import scipy.io
+    # mat = scipy.io.loadmat('circle_online_copos_bumps1000_XY.mat')
+    # X = mat['Xord']
+    # Y = mat['Yord']
+    # print(X.shape, Y.shape)
+    #
+    # test_one_circle(X, Y, 'circle_copositive_online', bump_subsampling=200,
+    #                 cos_freq=0.014)
+
     plt.show()
