@@ -5,7 +5,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import os
 import seaborn.apionly as sns
-from nomad import nomad_embedding
+from mantis import nomad_embedding
 from data import toy, real
 from experiments.utils import plot_matrix, plot_data_embedded, plot_images_embedded
 
