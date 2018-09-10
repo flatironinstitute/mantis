@@ -21,7 +21,7 @@ def test_clustering(X, gt, n_clusters, filename):
     Q = Y.dot(Y.T)
 
     sns.set_style('white')
-    plt.figure(figsize=(12, 4), tight_layout=True)
+    plt.figure(figsize=(12, 3.5), tight_layout=True)
 
     ax = plt.subplot(141)
     plot_data_clustered(X, gt, ax=ax)
@@ -42,7 +42,7 @@ def test_clustering(X, gt, n_clusters, filename):
 
 if __name__ == '__main__':
     X, gt = toy.gaussian_blobs()
-    test_clustering(X, gt, 16, 'gaussian_blobs')
+    test_clustering(X, gt, 6, 'gaussian_blobs')
 
     X, gt = toy.circles()
     test_clustering(X, gt, 16, 'circles')
