@@ -214,8 +214,12 @@ def plot_images_embedded(embedding, img_getter, labels=None, palette='hls',
 
     for k in range(0, len(embedding), subsampling):
         pos = embedding[k, :]
-        im = OffsetImage(img_getter(k), zoom=zoom)
-        im.image.axes = ax
+        img = img_getter(k)
+        if len(img.shape) == 2:
+            oim = OffsetImage(img_getter(k), cmap='gray', zoom=zoom)
+        else:
+            oim = OffsetImage(img_getter(k), zoom=zoom)
+        oim.image.axes = ax
 
         if labels is not None:
             frameon = True
@@ -224,7 +228,7 @@ def plot_images_embedded(embedding, img_getter, labels=None, palette='hls',
             frameon = False
             bboxprops = None
 
-        ab = AnnotationBbox(im, pos,
+        ab = AnnotationBbox(oim, pos,
                             xybox=(0., 0.),
                             xycoords='data',
                             boxcoords='offset points',
