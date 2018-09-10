@@ -186,7 +186,7 @@ def test_real_embedding(X, Y, target_dim, img_getter, filename, subsampling=10,
 
     sns.set_style('white')
 
-    plt.figure(figsize=(16, 5), tight_layout=True)
+    plt.figure(figsize=(16, 5.1), tight_layout=True)
     gs = gridspec.GridSpec(1, 4)
 
     titles = [r'$\mathbf{X}^\top \mathbf{X}$',
@@ -297,14 +297,35 @@ def test_mnist(digit=1, n_samples=1000, n_clusters=32, subsampling=10,
             Y = pickle.load(f)
             name = pickle.load(f)
 
-    test_real_embedding(X, Y, n_clusters, mnist_img, filename + name,
+    test_real_embedding(X, Y, 2, mnist_img, filename + name,
                         subsampling=subsampling, zoom=0.5, palette='none')
+
+
+def test_yale_faces(subjects=[1], n_clusters=16):
+    X, gt = real.yale_faces(subjects=subjects)
+
+    def yale_img(k):
+        return X[k, :].reshape((192, 168))
+
+    Y, name = compute_yspace(X, n_clusters, rank=0,
+                             use_copositive=False)
+
+    filename = 'yale' + '-'.join([str(s) for s in subjects])
+    test_real_embedding(X, Y, 2, yale_img, filename + '_' + name,
+                        subsampling=3, zoom=0.1, labels=gt, palette='none')
 
 
 def main():
     test_trefoil()
     test_teapot()
     test_mnist(digit=0, from_file=False)
+
+    test_yale_faces(subjects=[1])
+    test_yale_faces(subjects=[1, 4])
+    test_yale_faces(subjects=[1, 4, 5])
+    test_yale_faces(subjects=[1, 4, 37])
+    test_yale_faces(subjects=[1, 4, 5, 27])
+
 
     plt.show()
 
