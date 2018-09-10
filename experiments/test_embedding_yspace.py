@@ -6,7 +6,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import os
 import seaborn.apionly as sns
-from nomad import spectral_embedding, sdp_km_burer_monteiro,\
+from mantis import spectral_embedding, sdp_km_burer_monteiro,\
     copositive_burer_monteiro, dot_matrix
 from data import toy, real
 from experiments.utils import plot_matrix, plot_data_embedded,\
