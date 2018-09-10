@@ -7,7 +7,7 @@ import timeit
 import seaborn.apionly as sns
 import sys
 from data import real
-from nomad import nomad, sdp_km_burer_monteiro
+from mantis import nomad, sdp_km_burer_monteiro
 from experiments.utils import Logger
 
 dir_name = '../results/'
