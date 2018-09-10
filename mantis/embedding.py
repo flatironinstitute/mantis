@@ -1,6 +1,6 @@
 import numpy as np
 from numpy.linalg import eigh
-from nomad.solvers import nomad
+from mantis.solvers import nomad
 
 
 def nomad_embedding(X, n_clusters, target_dim, ret_sdp=False,

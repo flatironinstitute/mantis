@@ -4,8 +4,8 @@ from functools import partial
 import numpy as np
 import scipy.sparse as sp
 from scipy.optimize import minimize
-from nomad.nmf import DecomposedArray, symnmf_admm
-from nomad.utils import dot_matrix
+from mantis.nmf import DecomposedArray, symnmf_admm
+from mantis.utils import dot_matrix
 
 
 def nomad(X, n_clusters, method='cvx'):
