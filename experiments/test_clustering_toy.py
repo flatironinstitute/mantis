@@ -21,16 +21,18 @@ def test_clustering(X, gt, n_clusters, filename):
     Q = Y.dot(Y.T)
 
     sns.set_style('white')
-    plt.figure(figsize=(12, 5), tight_layout=True)
+    plt.figure(figsize=(12, 4), tight_layout=True)
 
-    ax = plt.subplot(131)
+    ax = plt.subplot(141)
     plot_data_clustered(X, gt, ax=ax)
     ax.set_title('Input dataset', fontsize='xx-large')
 
-    titles = ['Input Gramian $\mathbf{{D}}$',
-              '$\mathbf{{Q}}$ ($K={0}$)'.format(n_clusters)]
-    for i, (M, t) in enumerate(zip([D, Q], titles)):
-        ax = plt.subplot(1, 3, i + 2)
+    titles = [r'$\mathbf{X}^\top \mathbf{X}$',
+              r'$\mathbf{Y}^\top \mathbf{Y}$',
+              r'$\mathbf{Y}^\top$'
+    ]
+    for i, (M, t) in enumerate(zip([D, Q, Y], titles)):
+        ax = plt.subplot(1, 4, i + 2)
         plot_matrix(M, ax=ax)
         ax.set_title(t, fontsize='xx-large')
 
