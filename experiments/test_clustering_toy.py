@@ -1,8 +1,8 @@
 from __future__ import absolute_import, print_function
 import matplotlib.pyplot as plt
 import os
-import seaborn.apionly as sns
-from nomad import log_scale, nomad
+import seaborn as sns
+from mantis import log_scale, nomad
 from data import toy
 from experiments.utils import plot_matrix, plot_data_clustered
 
@@ -15,8 +15,7 @@ if not os.path.exists(dir_name):
 
 
 def test_clustering(X, gt, n_clusters, filename):
-    D, Q = nomad(X, n_clusters)
-    Q_log = log_scale(Q)
+    D, Q = nomad(X, n_clusters, method='bm')
 
     sns.set_style('white')
     plt.figure(figsize=(12, 6), tight_layout=True)
@@ -26,9 +25,8 @@ def test_clustering(X, gt, n_clusters, filename):
     ax.set_title('Input dataset', fontsize='xx-large')
 
     titles = ['Input Gramian $\mathbf{{D}}$',
-              '$\mathbf{{Q}}$ ($K={0}$)'.format(n_clusters),
-              '$\mathbf{{Q}}$ (enhanced contrast)']
-    for i, (M, t) in enumerate(zip([D, Q, Q_log], titles)):
+              '$\mathbf{{Q}}$ ($K={0}$)'.format(n_clusters)]
+    for i, (M, t) in enumerate(zip([D, Q], titles)):
         ax = plt.subplot(1, 4, i + 2)
         plot_matrix(M, ax=ax)
         ax.set_title(t, fontsize='xx-large')
