@@ -29,6 +29,7 @@ def plot_matrix(mat, cmap='gray_r', labels=None, which_labels='both',
 
     cbar = plt.colorbar(plt_image, orientation='horizontal', pad=.05,
                         fraction=.05, ax=ax)
+    cbar.ax.tick_params(labelrotation=90)
     if colorbar_labelsize is not None:
         cbar.ax.tick_params(labelsize=colorbar_labelsize)
 
