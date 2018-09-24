@@ -8,23 +8,6 @@ import sys
 import warnings
 
 
-def plot_confusion_matrix(conf_mat):
-    cm = conf_mat.astype('float') / conf_mat.sum(axis=1)[:, np.newaxis]
-
-    plt.matshow(cm, cmap='gray_r', vmin=0, vmax=1)
-
-    # text portion
-    ind_array = np.arange(cm.shape[0])
-    x, y = np.meshgrid(ind_array, ind_array)
-
-    for i, j in zip(x.flatten(), y.flatten()):
-        c = 'k' if cm[i, j] <= 0.5 else 'w'
-        plt.text(j, i, '{}'.format(conf_mat[i, j]), color=c, va='center', ha='center')
-
-    plt.xticks([])
-    plt.yticks([])
-
-
 def plot_matrix(mat, cmap='gray_r', labels=None, which_labels='both',
                 labels_palette='Set1', ax=None, colorbar_labelsize=None):
     if ax is None:
