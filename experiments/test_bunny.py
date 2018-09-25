@@ -1,6 +1,7 @@
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 import pickle
 from scipy.stats import vonmises
 from skimage.filters import median
@@ -9,6 +10,13 @@ import skimage.morphology as morpho
 from skimage.measure import find_contours
 from mantis import sdp_km_burer_monteiro
 from experiments.utils import plot_matrix, plot_data_embedded
+
+dir_name = '../results/'
+if not os.path.exists(dir_name):
+    os.mkdir(dir_name)
+dir_name += 'bunny/'
+if not os.path.exists(dir_name):
+    os.mkdir(dir_name)
 
 
 def extract_boundary(img):
@@ -84,7 +92,7 @@ def save_curve_plots():
         bunny_dict = pickle.load(f)
         circle_clustered_dict = pickle.load(f)
 
-    bunny_filename = 'bunny{}.png'
+    bunny_filename = '{}bunny{}.png'
     plt.savefig(bunny_filename.format(0))
     plt.close()
 
@@ -103,7 +111,7 @@ def save_curve_plots():
             plt.ylim(ylim)
             plt.gca().set_aspect('equal', adjustable='box')
 
-        plt.savefig(bunny_filename.format(i))
+        plt.savefig(bunny_filename.format(dir_name, i))
         plt.close()
 
     for i, k in enumerate(circle_clustered_dict):
@@ -117,7 +125,7 @@ def save_curve_plots():
         plt.ylim(ylim)
         plt.gca().set_aspect('equal', adjustable='box')
 
-        plt.savefig(bunny_filename.format(i + len(bunny_dict)))
+        plt.savefig(bunny_filename.format(dir_name, i + len(bunny_dict)))
         plt.close()
 
 
@@ -162,7 +170,7 @@ def process_curves():
         ax = plt.subplot(gs[1, i + 6])
         plot_matrix(Q, labels=labels, labels_palette='hls', ax=ax)
 
-    plt.savefig('bunny_deformation.pdf', dpi=300)
+    plt.savefig(dir_name + 'bunny_deformation.pdf', dpi=300)
 
     plt.show()
 
