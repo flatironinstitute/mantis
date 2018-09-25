@@ -2,7 +2,7 @@ from __future__ import absolute_import, print_function
 import matplotlib.pyplot as plt
 import os
 import seaborn as sns
-from mantis import sdp_km_burer_monteiro, log_scale
+from mantis import sdp_km_burer_monteiro
 from data import toy
 from experiments.utils import plot_matrix, plot_data_clustered
 
