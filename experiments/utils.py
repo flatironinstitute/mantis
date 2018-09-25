@@ -221,6 +221,37 @@ def plot_images_embedded(embedding, img_getter, labels=None, palette='hls',
         ax.add_artist(ab)
 
 
+def plot_bumps_1d(Y, subsampling=20, labels=None, labels_palette='hls',
+                  ax=None):
+    if ax is None:
+        ax = plt.gca()
+
+    Y_subsampled = Y[:, ::subsampling]
+
+    ax.plot(Y_subsampled)
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+    if labels is not None:
+        labels = np.sort(labels)
+        unique_labels = np.unique(labels)
+
+        segments = []
+        for lab in unique_labels:
+            subset = np.where(labels == lab)[0]
+            segments.append((subset[0] - 0.5, subset[-1] + 0.5))
+
+        offset = -0.1 * Y_subsampled.max()
+        h_segments = [((s[0], offset), (s[1], offset)) for s in segments]
+
+        colors = sns.color_palette(labels_palette, n_colors=len(unique_labels))
+
+        hlc = LineCollection(h_segments, colors=colors)
+        hlc.set_linewidth(5)
+        hlc.set_clip_on(False)
+        ax.add_collection(hlc)
+
+
 class Logger(object):
     def __init__(self, filename="Console.log"):
         self.stdout = sys.stdout
