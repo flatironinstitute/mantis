@@ -1,4 +1,3 @@
-from matplotlib.collections import LineCollection
 import matplotlib.colors as mpl_colors
 import matplotlib.gridspec as gridspec
 import matplotlib.pyplot as plt
@@ -7,7 +6,7 @@ import os
 import seaborn.apionly as sns
 from mantis import sdp_km_burer_monteiro, copositive_burer_monteiro
 from data import toy
-from experiments.utils import plot_matrix, plot_data_embedded
+from experiments.utils import plot_bumps_1d, plot_matrix, plot_data_embedded
 
 plt.rc('text', usetex=True)
 plt.rc('text.latex', preamble=r'\usepackage{amsmath}')
@@ -51,36 +50,6 @@ def plot_bumps_on_data(X, bumps, palette='Set1'):
     for i, (b, c) in enumerate(zip(bumps, colors)):
         alpha = np.maximum(b, 0) / b.max()
         plot_data_embedded(X, palette=c, alpha=alpha)
-
-
-def plot_bumps_1d(Y, subsampling=20, labels=None, labels_palette='hls',
-                  ax=None):
-    if ax is None:
-        ax = plt.gca()
-
-    Y_subsampled = Y[:, ::subsampling]
-
-    ax.plot(Y_subsampled)
-    ax.set_xticks([])
-
-    if labels is not None:
-        labels = np.sort(labels)
-        unique_labels = np.unique(labels)
-
-        segments = []
-        for lab in unique_labels:
-            subset = np.where(labels == lab)[0]
-            segments.append((subset[0] - 0.5, subset[-1] + 0.5))
-
-        offset = -0.1 * Y_subsampled.max()
-        h_segments = [((s[0], offset), (s[1], offset)) for s in segments]
-
-        colors = sns.color_palette(labels_palette, n_colors=len(unique_labels))
-
-        hlc = LineCollection(h_segments, colors=colors)
-        hlc.set_linewidth(5)
-        hlc.set_clip_on(False)
-        ax.add_collection(hlc)
 
 
 def align_bumps(Y, ref_idx):
@@ -159,7 +128,6 @@ def test_one_circle(X, Y, name, bump_subsampling=20, cos_freq=0.13,
 
     _, ax = plt.subplots(1, 1)
     plot_bumps_1d(Y, labels=labels, ax=ax, subsampling=bump_subsampling)
-    ax.set_yticks([])
     ax.set_title('Receptive fields', fontsize=25)
     plt.savefig('{}{}Y_1d.pdf'.format(dir_name, name), dpi=300)
 
