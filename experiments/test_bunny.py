@@ -9,7 +9,7 @@ from skimage.io import imread, imsave
 import skimage.morphology as morpho
 from skimage.measure import find_contours
 from mantis import sdp_km_burer_monteiro
-from experiments.utils import plot_matrix, plot_data_embedded
+from experiments.utils import plot_bumps_1d, plot_matrix, plot_data_embedded
 
 dir_name = '../results/'
 if not os.path.exists(dir_name):
@@ -46,12 +46,10 @@ def bunny2circle2clusters():
         bunny_dict = pickle.load(f)
 
     for i in bunny_dict:
-        k = len(bunny_dict[i]) // 150
-        print(i, k, len(bunny_dict[i][::k]))
-        if len(bunny_dict[i]) > 150:
-            bunny_dict[i] = bunny_dict[i][::4]
-        else:
-            bunny_dict[i] = bunny_dict[i]
+        samples = np.linspace(0, len(bunny_dict[i]), num=200, endpoint=False,
+                              dtype=np.int)
+        print(i, len(bunny_dict[i]), len(bunny_dict[i][samples]))
+        bunny_dict[i] = bunny_dict[i][samples]
 
     idx_last = max([i for i in bunny_dict])
     last_bunny = bunny_dict[idx_last]
@@ -59,13 +57,15 @@ def bunny2circle2clusters():
     norms = np.linalg.norm(last_bunny - centroid, axis=1)
     r = norms.mean()
 
-    samples = np.linspace(0, 1, endpoint=False, num=len(last_bunny) // 4 + 1)[1:]
+    samples_per_cluster = np.linspace(0, 1, endpoint=False,
+                                      num=len(last_bunny) // 4 + 1)[1:]
 
     circle_clustered_dict = {}
     for kappa in range(1, 200):
+        print(kappa)
         angles = []
         for theta in [0, 0.5 * np.pi, np.pi, 1.5 * np.pi]:
-            angles.extend(vonmises.ppf(samples, kappa, loc=theta))
+            angles.extend(vonmises.ppf(samples_per_cluster, kappa, loc=theta))
 
         # plt.figure()
         # plt.plot(angles)
@@ -93,8 +93,6 @@ def save_curve_plots():
         circle_clustered_dict = pickle.load(f)
 
     bunny_filename = '{}bunny{}.png'
-    plt.savefig(bunny_filename.format(0))
-    plt.close()
 
     for i in bunny_dict:
         curve = bunny_dict[i]
@@ -134,28 +132,38 @@ def process_curves():
         bunny_dict = pickle.load(f)
         circle_clustered_dict = pickle.load(f)
 
-    plt.figure(figsize=(20, 5), tight_layout=True)
-    gs = gridspec.GridSpec(2, 12)
+    plt.figure(figsize=(10, 6), tight_layout=True)
+    gs = gridspec.GridSpec(3, 6)
 
     bunny_idx = [0, 40, 80, 174, 524, 699]
-    circle_idx = [1, 3, 5, 7, 10, 199]
     # bunny_idx = np.linspace(0, len(bunny_dict) - 1, num=5, endpoint=True,
     #                         dtype=np.int)
+
+    # for i, idx in enumerate(bunny_idx):
+    #     print(idx)
+    #     curve = bunny_dict[idx]
+    #     Y = sdp_km_burer_monteiro(curve, 20, rank=len(curve),
+    #                               tol=1e-6, maxiter=5000, verbose=True)
+    #     Q = Y.dot(Y.T)
+    #     labels = np.arange(len(curve))
+    #
+    #     ax = plt.subplot(gs[0, i])
+    #     plot_data_embedded(curve, s=2, ax=ax)
+    #     ax = plt.subplot(gs[1, i])
+    #     plot_matrix(Q, labels=labels, labels_palette='hls', ax=ax)
+    #     ax = plt.subplot(gs[2, i])
+    #     plot_bumps_1d(Y, subsampling=15, labels=labels, labels_palette='hls',
+    #                   ax=ax)
+    #
+    # plt.savefig(dir_name + 'bunny_deformation.pdf', dpi=300)
+    # plt.show()
+
+    plt.figure(figsize=(10, 6), tight_layout=True)
+    gs = gridspec.GridSpec(3, 6)
+
+    circle_idx = [1, 3, 5, 7, 10, 199]
     # circle_idx = np.linspace(1, len(circle_clustered_dict), num=5,
     #                          endpoint=True, dtype=np.int)
-
-    for i, idx in enumerate(bunny_idx):
-        print(idx)
-        curve = bunny_dict[idx]
-        Y = sdp_km_burer_monteiro(curve, 32, rank=len(curve),
-                                  tol=1e-6, maxiter=5000, verbose=True)
-        Q = Y.dot(Y.T)
-        labels = np.arange(len(curve))
-
-        ax = plt.subplot(gs[0, i])
-        plot_data_embedded(curve, ax=ax)
-        ax = plt.subplot(gs[1, i])
-        plot_matrix(Q, labels=labels, labels_palette='hls', ax=ax)
 
     for i, idx in enumerate(circle_idx):
         print(idx)
@@ -165,19 +173,22 @@ def process_curves():
         Q = Y.dot(Y.T)
         labels = np.arange(len(curve))
 
-        ax = plt.subplot(gs[0, i + 6])
-        plot_data_embedded(curve, ax=ax)
-        ax = plt.subplot(gs[1, i + 6])
+        ax = plt.subplot(gs[0, i])
+        plot_data_embedded(curve, s=2, ax=ax)
+        ax = plt.subplot(gs[1, i])
         plot_matrix(Q, labels=labels, labels_palette='hls', ax=ax)
+        ax = plt.subplot(gs[2, i])
+        plot_bumps_1d(Y, subsampling=15, labels=labels, labels_palette='hls',
+                      ax=ax)
 
-    plt.savefig(dir_name + 'bunny_deformation.pdf', dpi=300)
-
+    plt.savefig(dir_name + 'circle_deformation.pdf', dpi=300)
     plt.show()
 
+
 def main():
-    # generate_bunny_curves()
-    # bunny2circle2clusters()
-    # save_curve_plots()
+    generate_bunny_curves()
+    bunny2circle2clusters()
+    save_curve_plots()
     process_curves()
 
 
