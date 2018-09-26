@@ -128,8 +128,8 @@ def plot_data_embedded(X, **kwargs):
     _plot_data_embedded(X, **kwargs)
 
 
-def _plot_data_embedded(X, palette='hls', marker='o', ax=None, elev_azim=None,
-                       alpha=1, edgecolors=None):
+def _plot_data_embedded(X, palette='hls', marker='o', s=None, ax=None,
+                        elev_azim=None, alpha=1, edgecolors=None):
     if ax is None:
         ax = plt.gca()
 
@@ -161,7 +161,7 @@ def _plot_data_embedded(X, palette='hls', marker='o', ax=None, elev_azim=None,
     center = (X_max + X_min) / 2.
 
     if X.shape[1] == 2:
-        ax.scatter(X[:, 0], X[:, 1], c=colors, edgecolors=edgecolors,
+        ax.scatter(X[:, 0], X[:, 1], c=colors, edgecolors=edgecolors, s=s,
                    marker=marker, alpha=alpha)
 
         ax.set_aspect('equal')
@@ -175,7 +175,7 @@ def _plot_data_embedded(X, palette='hls', marker='o', ax=None, elev_azim=None,
             ax.view_init(elev=elev_azim[0], azim=elev_azim[1])
 
         ax.scatter(X[:, 0], X[:, 1], X[:, 2], c=colors, edgecolors=edgecolors,
-                   marker=marker, alpha=alpha)
+                   s=s, marker=marker, alpha=alpha)
 
         ax.set_xlim(center[0] - range, center[0] + range)
         ax.set_ylim(center[1] - range, center[1] + range)
@@ -226,7 +226,9 @@ def plot_bumps_1d(Y, subsampling=20, labels=None, labels_palette='hls',
     if ax is None:
         ax = plt.gca()
 
-    Y_subsampled = Y[:, ::subsampling]
+    idx = np.argmax(Y, axis=1)
+    idx = np.sort(idx[::subsampling])
+    Y_subsampled = Y[:, idx]
 
     ax.plot(Y_subsampled)
     ax.set_xticks([])
