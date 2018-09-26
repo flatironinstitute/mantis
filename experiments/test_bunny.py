@@ -139,24 +139,24 @@ def process_curves():
     # bunny_idx = np.linspace(0, len(bunny_dict) - 1, num=5, endpoint=True,
     #                         dtype=np.int)
 
-    # for i, idx in enumerate(bunny_idx):
-    #     print(idx)
-    #     curve = bunny_dict[idx]
-    #     Y = sdp_km_burer_monteiro(curve, 20, rank=len(curve),
-    #                               tol=1e-6, maxiter=5000, verbose=True)
-    #     Q = Y.dot(Y.T)
-    #     labels = np.arange(len(curve))
-    #
-    #     ax = plt.subplot(gs[0, i])
-    #     plot_data_embedded(curve, s=2, ax=ax)
-    #     ax = plt.subplot(gs[1, i])
-    #     plot_matrix(Q, labels=labels, labels_palette='hls', ax=ax)
-    #     ax = plt.subplot(gs[2, i])
-    #     plot_bumps_1d(Y, subsampling=15, labels=labels, labels_palette='hls',
-    #                   ax=ax)
-    #
-    # plt.savefig(dir_name + 'bunny_deformation.pdf', dpi=300)
-    # plt.show()
+    for i, idx in enumerate(bunny_idx):
+        print(idx)
+        curve = bunny_dict[idx]
+        Y = sdp_km_burer_monteiro(curve, 20, rank=len(curve),
+                                  tol=1e-6, maxiter=5000, verbose=True)
+        Q = Y.dot(Y.T)
+        labels = np.arange(len(curve))
+
+        ax = plt.subplot(gs[0, i])
+        plot_data_embedded(curve, s=2, ax=ax)
+        ax = plt.subplot(gs[1, i])
+        plot_matrix(Q, labels=labels, labels_palette='hls', ax=ax)
+        ax = plt.subplot(gs[2, i])
+        plot_bumps_1d(Y, subsampling=10, labels=labels, labels_palette='hls',
+                      ax=ax)
+
+    plt.savefig(dir_name + 'bunny_deformation.pdf', dpi=300)
+    plt.show()
 
     plt.figure(figsize=(10, 6), tight_layout=True)
     gs = gridspec.GridSpec(3, 6)
