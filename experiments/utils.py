@@ -91,12 +91,12 @@ def line_plot_clustered(X, gt, ax=None):
                    labelleft=False)
 
 
-def plot_data_clustered(X, gt, marker='o', ax=None):
+def plot_data_clustered(X, gt, marker='o', ax=None, palette='Set1'):
     if ax is None:
         ax = plt.gca()
 
     keys = np.unique(gt)
-    for k, c in zip(keys, sns.color_palette('Set1', n_colors=len(keys))):
+    for k, c in zip(keys, sns.color_palette(palette, n_colors=len(keys))):
         mask = gt == k
         ax.scatter(X[mask, 0], X[mask, 1], c=c, edgecolors=c,
                    marker=marker)
